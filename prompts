@@ -1,0 +1,30 @@
+1er Promt:
+
+Quiero crear un servidor MCP que permita a Claude emitir facturas electrónicas en ARCA (ex AFIP) usando el web service de factura electrónica (WSFEv1), en el entorno de HOMOLOGACIÓN.
+
+Contexto: ya tengo código funcionando que se autentica con WSAA y emite facturas, con certificado y clave privada. Está en [RUTA DE TU PROYECTO]. Revisalo primero y reutilizá esa lógica en vez de reescribirla. Si está en otro lenguaje que el que elijas para el servidor, adaptalo.
+
+Requisitos:
+- Usar el SDK oficial de MCP (Python con FastMCP o TypeScript con @modelcontextprotocol/sdk, el que mejor encaje con mi código existente).
+- Transporte stdio para correrlo local.
+- Dos herramientas:
+  1. consultar_ultimo_comprobante(punto_venta, tipo_comprobante): devuelve el número del último comprobante autorizado.
+  2. emitir_factura(tipo_comprobante, punto_venta, concepto, doc_tipo, doc_nro, importe_total, descripcion): obtiene el próximo número, solicita el CAE y devuelve número, CAE y vencimiento del CAE.
+- Descripciones de herramientas claras y en español, explicando cuándo usar cada una y los valores válidos (ej: factura C = tipo 11, consumidor final = doc_tipo 99 con doc_nro 0).
+- Validar parámetros antes de llamar a ARCA y devolver errores legibles (incluyendo los errores/observaciones que devuelve ARCA).
+- Rutas del certificado, clave privada y CUIT por variables de entorno. Nunca hardcodeadas ni logueadas.
+- Forzar homologación: si alguien intenta apuntar a producción, que requiera una variable de entorno explícita.
+- Cachear el token de WSAA hasta que venza para no pedirlo en cada llamada.
+- README con cómo registrarlo en Claude Code (claude mcp add) y en Claude Desktop.
+
+Al final, probá ambas herramientas contra homologación y mostrame el resultado.
+
+
+2do Prompt: 
+
+En este proyecto hay lógica de autenticación con WSAA y de facturación con WSFEv1 de ARCA. Creá un script independiente, sin pasar por MercadoPago ni por el resto de la app, que:
+1. Muestre la fecha de vencimiento del certificado.
+2. Verifique que el certificado y la clave privada se correspondan.
+3. Se autentique contra WSAA de homologación y obtenga token y sign (reutilizando uno vigente si existe).
+4. Llame a FECompUltimoAutorizado con mi CUIT, punto de venta 1 y tipo de comprobante 11 (factura C), y muestre el resultado.
+No emitas ninguna factura.
